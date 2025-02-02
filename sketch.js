@@ -3,11 +3,12 @@ let w = 10; // width of each cell
 let y = 0;
 
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(410, 410);
   let total = width / w;
   for (let i = 0; i < total; i++) {
-    cells[i] = floor(random(2)); // generates either a 0 or 1
+    cells[i] = 0;
   }
+  cells[floor(total / 2)] = 1; // make middle state 1
   background(255);
 }
 
@@ -24,12 +25,12 @@ function draw() {
   y += w;
 
   // If the canvas is filled, reset the simulation
-  if (y >= height) {
-    if (frameCount % 120 == 0) { // Wait ~2 seconds (assuming 60 FPS)
-      resetSketch();
-    }
-    return;
-  }
+  // if (y >= height) {
+  //   if (frameCount % 120 == 0) { // Wait ~2 seconds (assuming 60 FPS)
+  //     resetSketch();
+  //   }
+  //   return;
+  // }
   
   let nextCells = []; // New state is a function of cells current neighbors
   // Ignore edges
