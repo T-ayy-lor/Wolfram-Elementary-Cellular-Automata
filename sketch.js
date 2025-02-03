@@ -1,12 +1,18 @@
 let cells = [];
-let ruleValue = 0; // wolfram
+let ruleValue = [30, 90, 110, 54, 62, 73, 149, 225, 250]; // wolfram
 let ruleSet = '';
+let currentRuleIndex = 0; // for display
 let w = 5; // width of each cell
-let y = 0;
+let y = 0; // starting cell row position
 
 function setup() {
-  createCanvas(600, 600);
+  let cnv = createCanvas(600, 600);
+  cnv.parent('container');
 
+  // for index.html
+  updateRuleDisplay();
+
+  // generation 0
   let total = width / w;
   cells = new Array(total).fill(0);
   cells[floor(total / 2)] = 1;
@@ -14,38 +20,36 @@ function setup() {
 }
 
 function draw() {
-  ruleSet = ruleValue.toString(2).padStart(8, "0"); // returns binary of ruleValue, padStart handles leading 0s
-  console.log(ruleSet);
+  // get wolfram rule as binary digit
+  ruleSet = ruleValue[currentRuleIndex].toString(2).padStart(8, "0");
+  console.log("Using rule:", ruleSet);
 
+  // generation generation
   for (let i = 0; i < cells.length; i++) {
     let x = i * w;
     stroke(0);
-    fill(255 - cells[i] * 255); // Black when cell is 1
+    fill(255 - cells[i] * 255);
     square(x, y, w);
   }
 
-  // render new generations
+  // increment next gens row
   y += w;
 
-  // When the canvas is filled, pause the loop and reset
+  // when the canvas is filled, hold 2 secs, and reset
   if (y >= height) {
     noLoop();
     setTimeout(() => {
-      ruleValue++;
-      console.log(ruleValue);
-      if (ruleValue > 255) {
-        ruleValue = 0;
-      }
       resetSketch();
       loop();
     }, 2000);
     return;
   }
   
+  // new state is a function of cells current neighbors
   let len = cells.length;
-  let nextCells = []; // New state is a function of cells current neighbors
+  let nextCells = []; 
+  // define neighborhood
   for (let i = 0; i < cells.length; i++) {
-    // Define neighborhood
     let left = cells[(i - 1 + len) % len];
     let right = cells[(i + 1 + len) % len];
     let state = cells[i];
@@ -57,18 +61,29 @@ function draw() {
 }
 
 function calculateState(left, state, right) {
-  // Define ruleset
+  // get neighborhood state as binary digit
   let neighborhood = '' + left + state + right;
   let value = 7 - parseInt(neighborhood, 2);
   return parseInt(ruleSet[value]);
 }
 
 function resetSketch() {
-  background(255); // Clear canvas
-  y = 0; // Reset y position
+  // next rule
+  currentRuleIndex = (currentRuleIndex + 1) % ruleValue.length;
+  updateRuleDisplay();
+  background(255);
+  y = 0;
 
-  // Reinitialize the cells array
+  // reinitialize generation 0
   let total = width / w;
   cells = new Array(total).fill(0);
   cells[floor(total / 2)] = 1;
+}
+
+function updateRuleDisplay() {
+  // get the decimal rule number
+  let decimalRule = ruleValue[currentRuleIndex];
+  let ruleDiv = document.getElementById("wolframNumber");
+  ruleDiv.innerHTML = decimalRule; // Display as decimal
+  
 }
