@@ -1,12 +1,12 @@
 let cells = [];
-let ruleValue = [30, 90, 110, 54, 62, 73, 149, 225, 250]; // wolfram
+let ruleValue = [30, 90, 110, 54, 62, 73, 149, 225, 250]; // wolfram rules
 let ruleSet = '';
 let currentRuleIndex = 0; // for display
 let w = 5; // width of each cell
 let y = 0; // starting cell row position
 
 function setup() {
-  let cnv = createCanvas(600, 600);
+  let cnv = createCanvas(600, 700);
   cnv.parent('container');
 
   // for index.html
@@ -84,6 +84,6 @@ function updateRuleDisplay() {
   // get the decimal rule number
   let decimalRule = ruleValue[currentRuleIndex];
   let ruleDiv = document.getElementById("wolframNumber");
-  ruleDiv.innerHTML = decimalRule; // Display as decimal
+  ruleDiv.innerHTML = decimalRule;
   
 }
