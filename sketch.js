@@ -1,18 +1,21 @@
-let cells = [1, 0, 0, 1, 0, 1, 0, 1, 1, 0];
-let w = 10; // width of each cell
+let cells = [];
+let ruleValue = 0; // wolfram
+let ruleSet = '';
+let w = 5; // width of each cell
 let y = 0;
 
 function setup() {
-  createCanvas(410, 410);
+  createCanvas(600, 600);
+
   let total = width / w;
-  for (let i = 0; i < total; i++) {
-    cells[i] = 0;
-  }
-  cells[floor(total / 2)] = 1; // make middle state 1
+  cells = new Array(total).fill(0);
+  cells[floor(total / 2)] = 1;
   background(255);
 }
 
 function draw() {
+  ruleSet = ruleValue.toString(2).padStart(8, "0"); // returns binary of ruleValue, padStart handles leading 0s
+  console.log(ruleSet);
 
   for (let i = 0; i < cells.length; i++) {
     let x = i * w;
@@ -24,22 +27,27 @@ function draw() {
   // render new generations
   y += w;
 
-  // If the canvas is filled, reset the simulation
-  // if (y >= height) {
-  //   if (frameCount % 120 == 0) { // Wait ~2 seconds (assuming 60 FPS)
-  //     resetSketch();
-  //   }
-  //   return;
-  // }
+  // When the canvas is filled, pause the loop and reset
+  if (y >= height) {
+    noLoop();
+    setTimeout(() => {
+      ruleValue++;
+      console.log(ruleValue);
+      if (ruleValue > 255) {
+        ruleValue = 0;
+      }
+      resetSketch();
+      loop();
+    }, 2000);
+    return;
+  }
   
+  let len = cells.length;
   let nextCells = []; // New state is a function of cells current neighbors
-  // Ignore edges
-  nextCells[0] = cells[0];
-  nextCells[cells.length - 1] = cells[cells.length - 1];
-  for (let i = 1; i < cells.length - 1; i++) {
+  for (let i = 0; i < cells.length; i++) {
     // Define neighborhood
-    let left = cells[i - 1];
-    let right = cells[i + 1];
+    let left = cells[(i - 1 + len) % len];
+    let right = cells[(i + 1 + len) % len];
     let state = cells[i];
     let newState = calculateState(left, state, right);
     nextCells[i] = newState;
@@ -50,18 +58,17 @@ function draw() {
 
 function calculateState(left, state, right) {
   // Define ruleset
-  if (left == 1 && state == 1 && right == 1) return 1;
-  if (left == 1 && state == 1 && right == 0) return 0;
-  if (left == 1 && state == 0 && right == 1) return 1;
-  if (left == 1 && state == 0 && right == 0) return 1;
-  if (left == 0 && state == 1 && right == 1) return 0;
-  if (left == 0 && state == 1 && right == 0) return 0;
-  if (left == 0 && state == 0 && right == 1) return 1;
-  if (left == 0 && state == 0 && right == 0) return 0;
-
+  let neighborhood = '' + left + state + right;
+  let value = 7 - parseInt(neighborhood, 2);
+  return parseInt(ruleSet[value]);
 }
 
 function resetSketch() {
   background(255); // Clear canvas
   y = 0; // Reset y position
+
+  // Reinitialize the cells array
+  let total = width / w;
+  cells = new Array(total).fill(0);
+  cells[floor(total / 2)] = 1;
 }
